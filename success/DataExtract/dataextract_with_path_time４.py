@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 import math
 import time
 
@@ -7,7 +7,8 @@ import xlwt
 import sys
 import numpy as np
 from numpy import ma
-#sys.path.append('/opt/deeproute/control/lib/python2.7/dist-packages')
+
+# sys.path.append('/opt/deeproute/control/lib/python2.7/dist-packages')
 sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
 # import rospy
 import rosbag
@@ -43,7 +44,6 @@ acc = []
 longitude = []
 latitude = []
 
-
 actual_angle = []
 lead_vehicle_position_x = []
 lead_vehicle_position_y = []
@@ -53,12 +53,11 @@ has_lead_vehicle = []
 hazard_ctrl_signal = []
 brake_rp = []
 
-
 # *********************************************************
 # *********************************************************
 bag = rosbag.Bag(Bag_path.pull_over_emergency)
-WriteFilePath = '/home/dr/datasheet/{0}.xls'.format("pull_over_emergency-" + time.strftime(Bag_path.TimeFormat, Bag_path.TimeLocal))
-
+WriteFilePath = '/home/dr/datasheet/{0}.xls'.format(
+    "pull_over_emergency-" + time.strftime(Bag_path.TimeFormat, Bag_path.TimeLocal))
 
 for topic, msg, t in bag.read_messages(topics=['/planner/path']):
     path.ParseFromString(msg.data)
@@ -81,72 +80,72 @@ index = 0
 curr_time = 0
 for topic, msg, t in bag.read_messages(topics=['/sensors/gnss/gnss']):
     if msg.time_meas < timepath[0]:
-    	continue
+        continue
 
     if msg.time_meas > timepath[len(timepath) - 1]:
-    	break
+        break
 
     curr_time = timepath[index]
     if msg.time_meas > curr_time:
-    	timegnss.append(msg.time_meas)
-    	longitude.append(msg.longitude_deg)
-    	latitude.append(msg.latitude_deg)
-    	index += 1
-    	continue
+        timegnss.append(msg.time_meas)
+        longitude.append(msg.longitude_deg)
+        latitude.append(msg.latitude_deg)
+        index += 1
+        continue
 
 index = 0
 curr_time = 0
-for topic, msg, t in bag.read_messages(topics=['/canbus/car_info']): 
+for topic, msg, t in bag.read_messages(topics=['/canbus/car_info']):
     car_info.ParseFromString(msg.data)
     if car_info.time_meas < timepath[0]:
-    	continue
+        continue
 
     if car_info.time_meas > timepath[len(timepath) - 1]:
-    	break
+        break
 
     curr_time = timepath[index]
     if car_info.time_meas > curr_time:
-    	timeinfo.append(car_info.time_meas)
-    	beam.append(car_info.misc.beam)  # 6 7
-    	throttle.append(car_info.throttle_report.actual_pedal)  # 8
-    	brake.append(car_info.brake_report.pedal_cmd_enabled)  # 9
-    	actual_angle.append(car_info.steer_report.actual_angle)  # 15
-    	brake_rp.append(car_info.brake_report.actual_pedal)  # 21
-    	index += 1
-    	continue
+        timeinfo.append(car_info.time_meas)
+        beam.append(car_info.misc.beam)  # 6 7
+        throttle.append(car_info.throttle_report.actual_pedal)  # 8
+        brake.append(car_info.brake_report.pedal_cmd_enabled)  # 9
+        actual_angle.append(car_info.steer_report.actual_angle)  # 15
+        brake_rp.append(car_info.brake_report.actual_pedal)  # 21
+        index += 1
+        continue
 
 index = 0
 curr_time = 0
 for topic, msg, t in bag.read_messages(topics=['/canbus/car_state']):
     car_state.ParseFromString(msg.data)
     if car_state.time_meas < timepath[0]:
-    	continue
+        continue
 
     if car_state.time_meas > timepath[len(timepath) - 1]:
-    	break
+        break
 
     curr_time = timepath[index]
     if car_state.time_meas > curr_time:
         timestate.append(car_state.time_meas)
-    	drivingmode.append(car_state.driving_mode)  # 1 2 3
-    	gear.append(car_state.gear)  # 4
-    	turnsignal.append(car_state.turn_signal)  # 5
-    	speed.append(car_state.speed)  # 14
-    	index += 1
-    	continue
+        drivingmode.append(car_state.driving_mode)  # 1 2 3
+        gear.append(car_state.gear)  # 4
+        turnsignal.append(car_state.turn_signal)  # 5
+        speed.append(car_state.speed)  # 14
+        index += 1
+        continue
 
-print('longitude size %f'%len(longitude))
-print('latitude size %f'%len(latitude))
-print('beam size %f'%len(beam))
-print('throttle size %f'%len(throttle))
-print('brake size %f'%len(brake))
-print('actual_angle size %f'%len(actual_angle))
-print('brake_rp size %f'%len(brake_rp))
-print('drivingmode size %f'%len(drivingmode))
-print('gear size %f'%len(gear))
-print('turnsignal size %f'%len(turnsignal))
-print('speed size %f'%len(speed))
-print('hazard_ctrl_signal size %f'%len(hazard_ctrl_signal))
+print('longitude size %f' % len(longitude))
+print('latitude size %f' % len(latitude))
+print('beam size %f' % len(beam))
+print('throttle size %f' % len(throttle))
+print('brake size %f' % len(brake))
+print('actual_angle size %f' % len(actual_angle))
+print('brake_rp size %f' % len(brake_rp))
+print('drivingmode size %f' % len(drivingmode))
+print('gear size %f' % len(gear))
+print('turnsignal size %f' % len(turnsignal))
+print('speed size %f' % len(speed))
+print('hazard_ctrl_signal size %f' % len(hazard_ctrl_signal))
 # *********************************************************
 # *********************************************************
 timestate0 = []
@@ -200,9 +199,6 @@ while i < len(drivingmode):
         data3.append(0)
     i += 1
 
-
-
-
 # 4
 data4 = []
 # for i in range(0, len(gear)):
@@ -216,9 +212,9 @@ data4 = []
 #         data4.append(3)
 #     if gear[i] == 4:
 #         data4.append(4)
-    # else:
-    #     if i % 50 == 0:
-    #         data4.append(0)
+# else:
+#     if i % 50 == 0:
+#         data4.append(0)
 i = 0
 while i < len(gear):
     if gear[i] == 1:
@@ -232,7 +228,6 @@ while i < len(gear):
     if gear[i] == 4:
         data4.append(4)
     i += 1
-
 
 # 5
 data5 = []
@@ -333,7 +328,6 @@ for i in range(0, len(hazard_ctrl_signal)):
     else:
         data16.append(0)
 
-
 # 17目标识别列表
 data17 = []
 data18 = []
@@ -404,9 +398,10 @@ sheet1.col(19).width = (15 * 256)
 sheet1.col(20).width = (15 * 256)
 
 count = 0
-old_heads = ['时间', '驾驶模式', '数据记录系统状态', '自动驾驶控制系统状态', '档位', '转向灯状态', '远光灯', '近光灯', '加速踏板行程值', '制动踏板状态', '启动状态', '环境感知传感器状态', '速度', '时间', '经度', '纬度']
-heads = ['转向灯状态','加速踏板行程值','车速', '转向角度', '报警信号', '目标位置识别x', '目标位置识别y','目标速度识别x','目标速度识别y', '制动踏板行程值','时间', '驾驶模式', '数据记录系统状态', '自动驾驶控制系统状态', '档位',  '远光灯','近光灯', '制动踏板状态', '启动状态', '环境感知传感器状态', ]
-
+old_heads = ['时间', '驾驶模式', '数据记录系统状态', '自动驾驶控制系统状态', '档位', '转向灯状态', '远光灯', '近光灯', '加速踏板行程值', '制动踏板状态', '启动状态',
+             '环境感知传感器状态', '速度', '时间', '经度', '纬度']
+heads = ['转向灯状态', '加速踏板行程值', '车速', '转向角度', '报警信号', '目标位置识别x', '目标位置识别y', '目标速度识别x', '目标速度识别y', '制动踏板行程值', '时间', '驾驶模式',
+         '数据记录系统状态', '自动驾驶控制系统状态', '档位', '远光灯', '近光灯', '制动踏板状态', '启动状态', '环境感知传感器状态', ]
 
 print('......')
 for head in heads:
@@ -493,22 +488,22 @@ for data in data11:
     sheet1.write(i, 19, data)
     i += 1  # 环境感知传感器状态
 
-print('data 0  %f'%len(pathtime0))
-print('data 1  %f'%len(data1))
-print('data 2  %f'%len(data2))
-print('data 3  %f'%len(data3))
-print('data 4  %f'%len(data4))
-print('data 5  %f'%len(data5))
-print('data 6  %f'%len(data6))
-print('data 7  %f'%len(data7))
-print('data 8  %f'%len(data8))
-print('data 9  %f'%len(data9))
-print('data 10  %f'%len(data10))
-print('data 11  %f'%len(data11))
-print('data 12  %f'%len(data12))
-print('data 13  %f'%len(data13))
-print('data 14  %f'%len(data14))
-print('data 15  %f'%len(data15))
+print('data 0  %f' % len(pathtime0))
+print('data 1  %f' % len(data1))
+print('data 2  %f' % len(data2))
+print('data 3  %f' % len(data3))
+print('data 4  %f' % len(data4))
+print('data 5  %f' % len(data5))
+print('data 6  %f' % len(data6))
+print('data 7  %f' % len(data7))
+print('data 8  %f' % len(data8))
+print('data 9  %f' % len(data9))
+print('data 10  %f' % len(data10))
+print('data 11  %f' % len(data11))
+print('data 12  %f' % len(data12))
+print('data 13  %f' % len(data13))
+print('data 14  %f' % len(data14))
+print('data 15  %f' % len(data15))
 
 book.save(WriteFilePath)
 print('OK')

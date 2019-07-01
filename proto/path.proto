@@ -1,0 +1,81 @@
+
+
+
+syntax = "proto2";
+
+package car.proto;
+
+import "car_state.proto";
+import "geometry.proto";
+import "perception_object.proto";
+import "decision.proto";
+
+message TrajectoryPoint{
+
+  // add TrajectoryPoint param, using in stgraph
+
+  optional float time_relative = 12;
+
+  optional float s_relative = 13;
+
+  optional float speed_by_time = 14;
+
+  optional float speed_limit_by_time = 15;
+}
+
+message PathPoint {
+  // position of the path point in global frame in m
+  optional Vector3f position = 1;
+
+  // curvature of the path point in rad/m
+  optional float k = 2;
+
+  // tangential direction on path in rad
+  optional float theta = 3;
+
+  // longitudinal displacement along the center line in m
+  optional float s = 4;
+
+  // lateral displacement from the center line in m
+  optional float l = 5;
+
+  // speed stamp on the path point in m/s
+  optional float speed = 6;
+
+  // speed limit on the path point in m/s
+  optional float speed_limit = 7;
+
+  // acceleration stamp on the path point in m/s^2
+  optional float acceleration = 8;
+
+  // driving direction, true for forward driving, false for backward driving
+  optional bool backward_driving = 9;
+
+  optional float dl = 10;
+
+  optional float ddl = 11;
+}
+
+message Path {
+  // in us
+  optional sfixed64 time_meas = 1;
+
+  // the whole path include several path points
+  repeated PathPoint path_points = 2;
+  optional CarState.TurnSignal turn_signal = 3;
+  optional CarState.HazardCtrlSignal hazard_ctrl_signal = 4;
+  optional PerceptionObject lead_vehicle = 5;
+  optional DecisionMain decision_main = 6;
+  repeated TrajectoryPoint trajectory = 7;
+}
+
+message Routes {
+  repeated Path paths = 1;
+}
+
+message SLBoundary {
+  optional double start_s = 1;
+  optional double end_s = 2;
+  optional double start_l = 3;
+  optional double end_l = 4;
+}

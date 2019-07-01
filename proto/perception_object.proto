@@ -1,0 +1,53 @@
+
+
+syntax = "proto2";
+
+package car.proto;
+
+import "geometry.proto";
+import "prediction.proto";
+
+message PerceptionObject {
+  optional int32 id = 1;  // usually between 0 and 9999
+
+  optional Vector3f position = 2;  // in the map frame
+  optional Vector3f velocity = 3;  // east/north/up with respect to the map frame
+
+  // heading of object in range [-pi, pi), (east = 0, north = pi/2, west = -pi, south = -pi/2)
+  optional float heading = 4;
+  optional Vector3f bounding_box = 5;  // length/width/height
+  optional Polygon polygon = 6;  // object corner points, 2D, in the map frame
+
+  optional int64 tracking_time = 7;  // duration of tracking since detection, in us
+
+  enum Type {
+    UNKNOWN = 0;
+    UNKNOWN_STATIC = 1;
+    UNKNOWN_DYNAMIC = 2;
+    PEDESTRIAN = 3;
+    BIKE = 4;
+    CAR = 5;
+    TRUCK = 6;
+  };
+  optional Type type = 8;
+
+  repeated Prediction prediction = 9;
+
+  enum Source {
+    RAVEN = 0;
+    ZEALOT = 1;
+  };
+
+  optional Source source = 10;
+  optional int32 point_cloud_size = 11;
+  repeated uint32 cluster_index = 12;
+}
+
+message PerceptionObjects {
+  optional sfixed64 time_meas = 1;  // in us
+  repeated PerceptionObject objects = 2;
+}
+
+message PerceptionObjectsRequest {
+  optional Polygon polygon = 1;  // in the map frame
+}
